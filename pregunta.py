@@ -8,7 +8,6 @@ correctamente. Tenga en cuenta datos faltantes y duplicados.
 """
 import pandas as pd
 
-
 def ingest_data():
     
     df = pd.read_fwf('clusters_report.txt', 
