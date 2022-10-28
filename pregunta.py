@@ -6,45 +6,42 @@ Realice la limpieza del dataframe. Los tests evaluan si la limpieza fue realizad
 correctamente. Tenga en cuenta datos faltantes y duplicados.
 
 """
+"""
 import pandas as pd
+import datetime as dt
 
-def ingest_data():
+def clean_data():
+
+    df = pd.read_csv("solicitudes_credito.csv", sep=";", )
+    df= df[df.columns[1:]]
+    df.columns.values
+
+    df['sexo']= df['sexo'].str.lower() 
+
+    df['tipo_de_emprendimiento']= df['tipo_de_emprendimiento'].str.lower()
+
+    df['idea_negocio']= df['idea_negocio'].str.lower()
+    df['idea_negocio']=df['idea_negocio'].str.replace("-","_")
+    df['idea_negocio']=df['idea_negocio'].str.replace("_"," ")
+    df['idea_negocio']=df['idea_negocio'].str.strip()
+
+    df['barrio']= df['barrio'].str.lower()
+    df['barrio']=df['barrio'].str.replace("-","_")
+    df['barrio']=df['barrio'].str.replace("_"," ")
+
+    df['línea_credito']= df['línea_credito'].str.lower()
+    df['línea_credito']=df['línea_credito'].str.replace("-","_")
+    df['línea_credito']=df['línea_credito'].str.replace("_"," ")
+    df['línea_credito']=df['línea_credito'].str.replace(".","")
+    df['línea_credito']=df['línea_credito'].str.strip()
+
+    df.fecha_de_beneficio = pd.to_datetime(df.fecha_de_beneficio,dayfirst=True)
+
+    df['monto_del_credito']=df['monto_del_credito'].str.replace(",","")
+    df['monto_del_credito']=df['monto_del_credito'].str.replace("$","")
+    df['monto_del_credito']=df['monto_del_credito'].str.strip()
+    df['monto_del_credito'] = df['monto_del_credito'].apply(pd.to_numeric, downcast="integer", errors='ignore')
+    df.drop_duplicates(inplace=True)
+    df.dropna(inplace=True)
     
-    df = pd.read_fwf('clusters_report.txt', 
-                             widths=[7,16,16,80], 
-                             names =['Cluster', 'Cantidad de palabras clave', 'Porcentaje de palabras clave', 'Principales palabras clave'], 
-                             skiprows = [0,1,2,3],
-                             skip_footer     = True,
-                             keep_default_na = False,
-                             na_filter = True,
-                             verbose  = True,
-                             warn_bad_lines  = False,
-                             )
-    for index, element in enumerate (df['Cluster']):
-        if element == '':
-            df['Cluster'].iloc[index] = df['Cluster'].iloc[index-1]
-            df['Cantidad de palabras clave'].iloc[index] = df['Cantidad de palabras clave'].iloc[index-1] 
-            df['Porcentaje de palabras clave'].iloc[index] = df['Porcentaje de palabras clave'].iloc[index-1]
-
-    df.columns = df.columns.str.replace(' ', '_') 
-
-    df.columns = df.columns.str.lower()
-
-    df['porcentaje_de_palabras_clave'].replace({"%": ''}, inplace=(True),  regex=True)
-    df['porcentaje_de_palabras_clave'].replace({",": '.'}, inplace=(True),  regex=True)
-
-    for name in df.columns:
-        # Uso apply junto a una función auxiliar.
-        df[name] = df[name].apply(lambda value:" ".join(str(value).strip().split()))
-
-    df['cluster'] = df['cluster'].astype(int) 
-    df['cantidad_de_palabras_clave'] = df['cantidad_de_palabras_clave'].astype(int) 
-    df['porcentaje_de_palabras_clave'] = df['porcentaje_de_palabras_clave'].astype(float)
-
-    df = df.groupby(['cluster','cantidad_de_palabras_clave','porcentaje_de_palabras_clave'])['principales_palabras_clave'].apply(' '.join).reset_index()
-
-    for index, element in enumerate (df['principales_palabras_clave']):
-        if element[-1] == '.':
-            df['principales_palabras_clave'].iloc[index] = element[:-1]
-
     return df
